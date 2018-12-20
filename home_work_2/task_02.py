@@ -13,15 +13,10 @@ import datetime
 import json
 
 
-def write_order_to_json(item='none', quantity='none', price='none', buyer='none', date='none'):
+def write_order_to_json(my_item='none', my_quantity='none', my_price='none', my_buyer='none', my_date='none'):
     INDENT = 4
 
-    json_dict = {}
-    json_dict['item'] = item
-    json_dict['quantity'] = quantity
-    json_dict['price'] = price
-    json_dict['buyer'] = buyer
-    json_dict['date'] = date
+    json_dict = dict(item=my_item, quantity=my_quantity, price=my_price, buyer=my_buyer, date=my_date)
 
     for key, item in json_dict.items():
         if item is not str and item is not int and item is not bool:
@@ -37,4 +32,4 @@ price = 84.65
 buyer = 10658
 time = datetime.datetime.now()
 
-write_order_to_json(item=item, quantity=quantity, price=price, buyer=buyer, date=time)
+write_order_to_json(my_item=item, my_quantity=quantity, my_price=price, my_buyer=buyer, my_date=time)
