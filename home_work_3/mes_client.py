@@ -16,16 +16,20 @@ import sys
 import socket
 import time
 import json
+import check_functions
 from client_data import client_actions
 
 
 class JimClient:
-    def __init__(self, socket_port, host, m_transfering_bytes=2048, user_name='admin', encoding='utf-8'):
+    def __init__(self, socket_port, host, m_transfer_bytes=2048, user_name='admin', encoding='utf-8'):
         self._socket_port = socket_port
-        self._m_transfering_b = m_transfering_bytes
+        self._m_transfer_b = m_transfer_bytes
         self._encoding = encoding
         self._host = host
         self._user_name = user_name
+
+    def __del__(self):
+        print('Отключение клиента')
 
     @staticmethod
     def get_u_time():
@@ -41,7 +45,7 @@ class JimClient:
         return self._socket_port
 
     def get_max_transfered_b(self):
-        return self._m_transfering_b
+        return self._m_transfer_b
 
     def get_encoding(self):
         return self._encoding
@@ -109,57 +113,24 @@ class JimClient:
         my_client_socket.close()
 
     def start_client(self):
+        """contains work client entirely"""
         client_socket = self.tcp_connect_to()
         self.send_mess(client_socket, client_actions.presence_mess(self.get_user_name(), self.get_u_time()))
         server_mess = self.get_server_mess(client_socket)
         result = self.work_with_serv_mess(server_mess)
 
         if result == 202:
-            for i in range(10):
+            for i in range(5):
                 print('переписываемся')
 
         self.shutdown_from_serv(client_socket)
 
     @staticmethod
-    def check_ip(ip):
-        wrong_ip = 'Указан неверный IP адресс, IP адресс должен иметь вид X.X.X.X, где каждый X это число от 0 - 255'
-        ip = ip.split('.')
-
-        if len(ip) == 4:
-            for num in ip:
-                try:
-                    num = int(num)
-                except ValueError:
-                    print(wrong_ip)
-                    exit(1)
-
-                if num <= 255:
-                    continue
-                else:
-                    print(wrong_ip)
-                    exit(1)
-            else:
-                return True
-        else:
-            print(wrong_ip)
-            exit(1)
-
-    @staticmethod
-    def check_port(port):
-        try:
-            port = int(port)
-        except ValueError:
-            print('Порт для подключения должен быть числом в диапазоно 1025 - 65535')
-            exit(1)
-
-        if 1024 < port <= 65535:
-            return True
-        else:
-            print('Указанный порт не входит в диапазон доступных портов: 1025 - 65535')
-            exit(1)
-
-    @staticmethod
     def check_sys_args(my_system_args):
+        """check is input a right and set ip, host and user name parameters
+        -a  - is ip string
+        -p  - is port number
+        -un - is user name"""
         wrong_variables = 'Вы неправильно указали переменные для запуска, если вам требуется помощь ' \
                           'для запуска клиента, воспользуйтесь параметром help'
         my_variables = {'-a': 'localhost', '-p': 7777, '-un': 'Vasiliy Pupckin'}
@@ -185,9 +156,9 @@ class JimClient:
                     exit(1)
 
                 if item == '-a':
-                    JimClient.check_ip(new_var)
+                    check_functions.check_ip(new_var)
                 elif item == '-p':
-                    JimClient.check_port(new_var)
+                    check_functions.check_port(new_var)
 
                 my_variables[item] = new_var
             return my_variables
@@ -198,10 +169,10 @@ class JimClient:
 
 if __name__ == '__main__':
     system_args = sys.argv
-    MAX_BYTES_TRANSFERED = 2048
+    MAX_BYTES_TRANSFER = 2048
     ENCODING = 'utf-8'
 
     variables = JimClient.check_sys_args(system_args)
-    client = JimClient(variables['-p'], variables['-a'], m_transfering_bytes=MAX_BYTES_TRANSFERED,
+    client = JimClient(variables['-p'], variables['-a'], m_transfer_bytes=MAX_BYTES_TRANSFER,
                        user_name=variables['-un'], encoding=ENCODING)
     client.start_client()
