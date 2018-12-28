@@ -12,41 +12,11 @@ b. сервер отвечает соответствующим кодом ре�
 ○ -a <addr> — IP-адрес для прослушивания (по умолчанию слушает все
 доступные адреса).'''
 
-
 import socket
 import time
 import json
-import sys
-print(sys.path)
+from home_work_3.server_data import server_responce
 
-
-# ____________________  responce   _____________________________________
-
-def accept_presence():
-    mess = {
-        "responce": 202,
-        "alert": "connecting to server is successful"
-    }
-    return json.dumps(mess)
-
-
-def wrong_request():
-    mess = {
-        "responce": 400,
-        "error": "You request not compliant"
-    }
-    return json.dumps(mess)
-
-
-def client_alredy_connected():
-    mess = {
-        "responce": 409,
-        "error": "You already connected on server"
-    }
-    return json.dumps(mess)
-
-
-# _________________________________________________________________________________
 
 def get_u_time():
     return round(time.time())
@@ -57,10 +27,10 @@ def u_time_convert(u_time):
 
 
 def open_tcp_socket(port, host='', count_clients=1):
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind((host, port))
-    server_socket.listen(count_clients)
-    return server_socket
+    my_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    my_server_socket.bind((host, port))
+    my_server_socket.listen(count_clients)
+    return my_server_socket
 
 
 def get_client_mess(my_client, max_bytes_transfered):
@@ -70,7 +40,7 @@ def get_client_mess(my_client, max_bytes_transfered):
 def disconect_client(my_client, account_name, disconect_mess, clients_list, mess_encoding='utf-8'):
     send_mess(my_client, disconect_mess, mess_encoding)
     my_client.close()
-    print(f'Клиент {my_client} был отключен \n' + '_'*100)
+    print(f'Клиент {my_client} был отключен \n' + '_' * 100)
     item = check_client_is_autorize(account_name, clients_list)
     if item:
         client_deautorize(item, clients_list)
@@ -79,7 +49,7 @@ def disconect_client(my_client, account_name, disconect_mess, clients_list, mess
 def check_client_mess(my_client, client_address, mess, client_list, mess_encoding='utf-8'):
     if not mess:
         print(f'connecting to {client_address} is failed')
-        disconect_client(my_client, client_address, wrong_request(), client_list, mess_encoding)
+        disconect_client(my_client, client_address, server_responce.wrong_request(), client_list, mess_encoding)
         return False
     else:
         print(f'connecting to {client_address} is successful')
@@ -106,7 +76,7 @@ def work_whith_client_mess(mess, my_client, client_address, client_list, mess_en
         action = mess["action"]
     except KeyError:
         print(f'в сообщении клиента {client_address} отсутствовал параметр action')
-        disconect_client(my_client, None, wrong_request(), client_list, mess_encoding)
+        disconect_client(my_client, None, server_responce.wrong_request(), client_list, mess_encoding)
     else:
         if action == "presence":
             client_presence(my_client, client_address, mess.get("user"), client_list, mess_encoding)
@@ -119,14 +89,16 @@ def work_whith_client_mess(mess, my_client, client_address, client_list, mess_en
 
 def client_presence(my_client, client_address, client_user, clients_list, mess_encoding):
     if not client_user or not client_user.get("account_name"):
-        disconect_client(my_client, client_user.get("account_name"), wrong_request(), clients_list, mess_encoding)
+        disconect_client(my_client, client_user.get("account_name"), server_responce.wrong_request(), clients_list,
+                         mess_encoding)
     else:
         account_name = client_user.get("account_name")
         if check_client_is_autorize(account_name, clients_list):
-            disconect_client(my_client, account_name, client_alredy_connected(), clients_list, mess_encoding)
+            disconect_client(my_client, account_name, server_responce.client_alredy_connected(), clients_list,
+                             mess_encoding)
         else:
             clients_list.append((client_address, account_name))
-            send_mess(my_client, accept_presence(), mess_encoding)
+            send_mess(my_client, server_responce.accept_presence(), mess_encoding)
 
 
 def check_client_is_autorize(account_name, clients_list):
