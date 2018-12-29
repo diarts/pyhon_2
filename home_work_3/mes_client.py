@@ -125,54 +125,17 @@ class JimClient:
 
         self.shutdown_from_serv(client_socket)
 
-    @staticmethod
-    def check_sys_args(my_system_args):
-        """check is input a right and set ip, host and user name parameters
-        -a  - is ip string
-        -p  - is port number
-        -un - is user name"""
-        wrong_variables = 'Вы неправильно указали переменные для запуска, если вам требуется помощь ' \
-                          'для запуска клиента, воспользуйтесь параметром help'
-        my_variables = {'-a': 'localhost', '-p': 7777, '-un': 'Vasiliy Pupckin'}
-
-        if len(my_system_args) == 2 and my_system_args[1] == 'help':
-            print('help')
-            exit(0)
-
-        elif len(my_system_args) == 1:
-            return my_variables
-
-        elif '-a' in my_system_args or '-p' in my_system_args or '-un' in my_system_args:
-            for item in my_variables.keys():
-                try:
-                    index = my_system_args.index(item)
-                except ValueError:
-                    continue
-
-                try:
-                    new_var = my_system_args[index + 1]
-                except IndexError:
-                    print(wrong_variables)
-                    exit(1)
-
-                if item == '-a':
-                    check_functions.check_ip(new_var)
-                elif item == '-p':
-                    check_functions.check_port(new_var)
-
-                my_variables[item] = new_var
-            return my_variables
-        else:
-            print(wrong_variables)
-            exit(1)
-
 
 if __name__ == '__main__':
     system_args = sys.argv
     MAX_BYTES_TRANSFER = 2048
     ENCODING = 'utf-8'
+    my_variables = {'-a': 'localhost', '-p': 7777, '-un': 'Vasiliy Pupckin'}
 
-    variables = JimClient.check_sys_args(system_args)
+    checker = check_functions.IpAndPortChecker(summoner='клиент')
+    variables = checker.check_sys_args(system_args, my_variables)
+    print(variables)
+
     client = JimClient(variables['-p'], variables['-a'], m_transfer_bytes=MAX_BYTES_TRANSFER,
                        user_name=variables['-un'], encoding=ENCODING)
     client.start_client()

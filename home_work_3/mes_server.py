@@ -172,54 +172,16 @@ class JimServer:
                     if result == "quit":
                         break
 
-    @staticmethod
-    def check_sys_args(my_system_args):
-        """check is input a right and set ip and host parameters
-        -a  - is ip string
-        -p  - is port number"""
-        wrong_variables = 'Вы неправильно указали переменные для запуска, если вам требуется помощь ' \
-                          'для запуска сервера, воспользуйтесь параметром help'
-        my_variables = {'-a': '', '-p': 7777}
-
-        if len(my_system_args) == 2 and my_system_args[1] == 'help':
-            print('help')
-            exit(0)
-
-        elif len(my_system_args) == 1:
-            return my_variables
-
-        elif '-a' in my_system_args or '-p' in my_system_args:
-            for item in my_variables.keys():
-                try:
-                    index = my_system_args.index(item)
-                except ValueError:
-                    continue
-
-                try:
-                    new_var = my_system_args[index + 1]
-                except IndexError:
-                    print(wrong_variables)
-                    exit(1)
-
-                if item == '-a':
-                    check_functions.check_ip(new_var)
-                else:
-                    check_functions.check_port(new_var)
-
-                my_variables[item] = new_var
-            return my_variables
-        else:
-            print(wrong_variables)
-            exit(1)
-
 
 if __name__ == '__main__':
     system_args = sys.argv
     ENCODING = 'utf-8'
     MAX_BYTES_TRANSFERED = 2048
     MAX_CLIENTS = 1
+    my_variables = {'-a': '', '-p': 7777}
 
-    variables = JimServer.check_sys_args(system_args)
+    checker = check_functions.IpAndPortChecker(summoner='Сервер')
+    variables = checker.check_sys_args(system_args, my_variables)
     print(variables)
 
     server = JimServer(variables['-p'], variables['-a'], MAX_CLIENTS, MAX_BYTES_TRANSFERED, ENCODING)
