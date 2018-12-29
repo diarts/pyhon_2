@@ -38,18 +38,21 @@ class IpAndPortChecker:
             print('eject_type был указан не верно, причина выхода не ясна')
         exit(1)
 
+    # has unittest
     def check_ip_counts(self, count: int):
         if count <= self._max_value_ip:
             return True
         else:
             self.ejection_program(eject_type='ip')
 
+    # has unittest
     def ip_split(self, ip: str, splitter: str):
         try:
             return ip.split(splitter)
         except AttributeError:
             self.ejection_program(eject_type='ip')
 
+    # has unittest
     def ip_list_convert(self, ip):
         for index, item in enumerate(ip):
             try:
@@ -72,7 +75,14 @@ class IpAndPortChecker:
         for value in ip:
             self.check_ip_counts(count=value)
 
+    # has_unittest
     def check_port_range(self, port):
+        if port is not int:
+            try:
+                port = int(port)
+            except ValueError:
+                self.ejection_program(eject_type='port')
+
         if self._min_port <= port <= self._max_port:
             return True
         else:
@@ -87,6 +97,7 @@ class IpAndPortChecker:
 
         self.check_port_range(port)
 
+    # has unittest
     def get_index_sys_arg(self, key, my_system_args):
         try:
             index = my_system_args.index(key)
