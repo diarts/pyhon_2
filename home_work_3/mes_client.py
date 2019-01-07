@@ -12,13 +12,11 @@ b. сервер отвечает соответствующим кодом ре�
 ○ addr — ip-адрес сервера;
 ○ port — tcp-порт на сервере, по умолчанию 7777.
 '''
-import sys
-import socket
-import time
-import json
-import check_functions
+import sys, socket, time, json, logging, loggers, check_functions
 from client_data import client_actions
-
+client_logger = logging.getLogger('client_logger')
+# for write check function logs in client log file, add file rotating logger to check function logger
+check_functions.ip_and_port_checker_logger.addHandler(loggers.file_rotating_logger)
 
 class JimClient:
     def __init__(self, socket_port, host, m_transfer_bytes=2048, user_name='admin', encoding='utf-8'):
@@ -127,12 +125,13 @@ class JimClient:
 
 
 if __name__ == '__main__':
+    client_logger.debug('test message')
     system_args = sys.argv
     MAX_BYTES_TRANSFER = 2048
     ENCODING = 'utf-8'
     my_variables = {'-a': 'localhost', '-p': 7777, '-un': 'Vasiliy Pupckin'}
 
-    checker = check_functions.IpAndPortChecker(summoner='клиент')
+    checker = check_functions.IpAndPortChecker()
     variables = checker.check_sys_args(system_args, my_variables)
     print(variables)
 

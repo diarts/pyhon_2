@@ -106,16 +106,6 @@ class TestIpAndPortChecker(unittest.TestCase):
         port = 1231214124
         self.assertRaises(ValueError, self.ip_port_checker.check_port, port)
 
-    def test_get_index_successfull(self):
-        key = '-a'
-        self.assertEqual(self.ip_port_checker.get_index_sys_arg(key, self.my_sys_args), 3)
-
-    def test_get_index_wrong_argument(self):
-        key = '-c'
-        self.assertEqual(self.ip_port_checker.get_index_sys_arg(key, self.my_sys_args), False)
-        key = 46421
-        self.assertEqual(self.ip_port_checker.get_index_sys_arg(key, self.my_sys_args), False)
-
     def test_get_variable_success(self):
         index = 3
         model_var = '255.255.255.255'

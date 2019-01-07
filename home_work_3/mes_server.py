@@ -12,13 +12,11 @@ b. сервер отвечает соответствующим кодом ре�
 ○ -a <addr> — IP-адрес для прослушивания (по умолчанию слушает все
 доступные адреса).'''
 
-import sys
-import socket
-import time
-import json
-import check_functions
+import sys, socket, time, json, logging, loggers, check_functions
 from server_data import server_responce
-
+server_logger = logging.getLogger('server_logger')
+# for write check function logs in server log file, add file time rotating logger to check function logger
+check_functions.ip_and_port_checker_logger.addHandler(loggers.file_time_rotating_logger)
 
 class JimServer:
     def __init__(self, socket_port, host, count_clients=1, m_transfering_bytes=2048, encoding='utf-8'):
