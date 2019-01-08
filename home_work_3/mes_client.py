@@ -14,9 +14,11 @@ b. сервер отвечает соответствующим кодом ре�
 '''
 import sys, socket, time, json, logging, loggers, check_functions
 from client_data import client_actions
+
 client_logger = logging.getLogger('client_logger')
 # for write check function logs in client log file, add file rotating logger to check function logger
 check_functions.ip_and_port_checker_logger.addHandler(loggers.file_rotating_logger)
+
 
 class JimClient:
     def __init__(self, socket_port, host, m_transfer_bytes=2048, user_name='admin', encoding='utf-8'):
@@ -25,9 +27,7 @@ class JimClient:
         self._encoding = encoding
         self._host = host
         self._user_name = user_name
-
-    def __del__(self):
-        print('Отключение клиента')
+        self.json_decode_error = json.JSONDecodeError
 
     @staticmethod
     def get_u_time():
@@ -56,85 +56,131 @@ class JimClient:
 
     def tcp_connect_to(self):
         """function connect client to server by specified port. If server is offline, client closed"""
+        client_logger.debug('create client socket')
         my_client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_logger.info(f'connecting to server...')
+        client_logger.debug(f'try connect to server with host = {self.get_host()}, port = {self.get_socket_port()}')
         try:
             my_client_socket.connect((self.get_host(), self.get_socket_port()))
         except ConnectionRefusedError:
-            print('Connecton failed, server is offline')
-            exit(0)
+            client_logger.warning(f'connecting is failed, server not answer')
+            return False
+        client_logger.info(f'connecting is success')
         return my_client_socket
 
     def send_mess(self, my_socket, mess):
         """function sends specified message to the server"""
+        client_logger.debug(f'sending message: {mess}')
         my_socket.send(mess.encode(self.get_encoding()))
 
     def get_server_mess(self, client_socket):
         """function get message from the server, decode it and convert to python dictionary.
         If it hasn't function responce or action, then client disconnect from the server"""
         server_message = client_socket.recv(self.get_max_transfered_b())
-        server_message = server_message.decode(self.get_encoding())
-        server_message = json.loads(server_message)
+        client_logger.debug(f'server message received, start decode, encoding = {self.get_encoding()}')
+        try:
+            server_message = server_message.decode(self.get_encoding())
+        except UnicodeEncodeError:
+            client_logger.critical('server encoding different from client')
+            return False
+        try:
+            client_logger.debug('converting json message to dict')
+            server_message = json.loads(server_message)
+        except self.json_decode_error:
+            client_logger.critical('server message has wrong type')
+            client_logger.debug('server message not in json type, decode error')
+            return False
 
+        client_logger.debug('find "responce" or "action" in server message')
         if "responce" not in server_message and "action" not in server_message:
-            print('сообщение от сервера пришло с неправильной структурой')
-            self.shutdown_from_serv(client_socket)
+            client_logger.critical('server message has wrong variables')
+            client_logger.debug('server message has not responce or action variable')
+            return False
         else:
+            client_logger.debug('server message is right')
             return server_message
 
     def work_with_serv_mess(self, mess):
         """call responce or action function request in dependence"""
+        client_logger.debug('start processing server message')
+        client_logger.debug('getting responce or action')
         responce = mess.get("responce")
         action = mess.get("action")
 
         if responce:
-            return self.work_with_responce(responce, mess)
+            client_logger.debug('server message is responce type start processing for responce message')
+            type_of_responce = self.work_with_responce(responce, mess)
+            return type_of_responce
 
     def work_with_responce(self, responce, mess):
-        """print servers message by responce code"""
+        client_logger.debug(f'responce code = {responce}')
         if 100 < responce > 200:
-            print('сервер прислал информационное сообщение: ' + mess.get("alert"))
+            client_logger.debug('server responce type is "information"')
+            client_logger.info(f'server message is: {mess.get("alert")}')
             return responce
         elif responce < 300:
-            print('запрос выполнен успешно, ' + mess.get("alert"))
+            client_logger.debug(f'server message type is "request success": {mess.get("alert")}')
             return responce
         elif responce < 500:
-            print('сервер не может выполнить запрос, ошибка клиента: ' + mess.get("error"))
+            client_logger.debug(
+                f'server message type is "the request cannot be executed, client error": {mess.get("error")}')
             return responce
         else:
-            print('сервер не может выполнить запрос, ошибка сервера: ' + mess.get("error"))
+            client_logger.debug(
+                f'server message type is "the request cannot be executed, server error": {mess.get("error")}')
             return responce
 
     def shutdown_from_serv(self, my_client_socket):
         """send quit message to the server and close client"""
+        client_logger.debug('send shutdown message to server')
         self.send_mess(my_client_socket, client_actions.quit_mess())
-        print('отключение клиента от сервера')
+        client_logger.info('shutdown client from server, close client')
         my_client_socket.close()
 
     def start_client(self):
         """contains work client entirely"""
+        client_logger.debug('create tcp connect to server')
         client_socket = self.tcp_connect_to()
+        if not client_socket:
+            client_logger.info('closing client')
+            return False
+        client_logger.debug('send presence message to server')
         self.send_mess(client_socket, client_actions.presence_mess(self.get_user_name(), self.get_u_time()))
+        client_logger.debug('getting server responce to presence message')
         server_mess = self.get_server_mess(client_socket)
+        if not server_mess:
+            client_logger.info('closing client')
+            self.shutdown_from_serv(client_socket)
+
+        client_logger.debug(f'server responce is: {server_mess}')
         result = self.work_with_serv_mess(server_mess)
 
         if result == 202:
+            client_logger.debug('client message responce code is 202, start conversation')
             for i in range(5):
-                print('переписываемся')
+                client_logger.info('conversation')
 
+        client_logger.debug('work with server is finished')
         self.shutdown_from_serv(client_socket)
 
 
 if __name__ == '__main__':
-    client_logger.debug('test message')
-    system_args = sys.argv
     MAX_BYTES_TRANSFER = 2048
     ENCODING = 'utf-8'
     my_variables = {'-a': 'localhost', '-p': 7777, '-un': 'Vasiliy Pupckin'}
 
+    system_args = sys.argv
+    client_logger.info(f'getting system arguments {system_args}')
+
     checker = check_functions.IpAndPortChecker()
     variables = checker.check_sys_args(system_args, my_variables)
-    print(variables)
+
+    client_logger.debug(f'create JimClient variable whith parameters: ip address = {variables["-a"]}, '
+                        f'port = {variables["-p"]}, user_name = {variables["-un"]}, '
+                        f'max bytes transfer = {MAX_BYTES_TRANSFER}, encoding = {ENCODING}')
 
     client = JimClient(variables['-p'], variables['-a'], m_transfer_bytes=MAX_BYTES_TRANSFER,
                        user_name=variables['-un'], encoding=ENCODING)
+
+    client_logger.info('starting client')
     client.start_client()
