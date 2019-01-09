@@ -12,11 +12,19 @@ b. сервер отвечает соответствующим кодом ре�
 ○ -a <addr> — IP-адрес для прослушивания (по умолчанию слушает все
 доступные адреса).'''
 
-import sys, socket, time, json, logging, loggers, check_functions
+import sys
+import socket
+import time
+import json
+import logging
+import check_functions
+from loggers import server_logger as server_logger_source
 from server_data import server_responce
+
 server_logger = logging.getLogger('server_logger')
 # for write check function logs in server log file, add file time rotating logger to check function logger
-check_functions.ip_and_port_checker_logger.addHandler(loggers.file_time_rotating_logger)
+check_functions.ip_and_port_checker_logger.addHandler(server_logger_source.time_rotating_logger)
+
 
 class JimServer:
     def __init__(self, socket_port, host, count_clients=1, m_transfering_bytes=2048, encoding='utf-8'):
@@ -156,6 +164,7 @@ class JimServer:
             print(f'connected to {address}...')
 
             while True:
+                server_logger.debug('connect')
                 client_mess = self.get_client_mess(client)
 
                 if not self.check_client_mess(client, address, client_mess):
@@ -172,15 +181,18 @@ class JimServer:
 
 
 if __name__ == '__main__':
-    system_args = sys.argv
     ENCODING = 'utf-8'
     MAX_BYTES_TRANSFERED = 2048
     MAX_CLIENTS = 1
     my_variables = {'-a': '', '-p': 7777}
 
-    checker = check_functions.IpAndPortChecker(summoner='Сервер')
+    server_logger.debug('getting system arguments')
+    system_args = sys.argv
+    server_logger.debug(f'system arguments is: {system_args}')
+
+    checker = check_functions.IpAndPortChecker()
+    print('start')
     variables = checker.check_sys_args(system_args, my_variables)
-    print(variables)
 
     server = JimServer(variables['-p'], variables['-a'], MAX_CLIENTS, MAX_BYTES_TRANSFERED, ENCODING)
     server.server_work()

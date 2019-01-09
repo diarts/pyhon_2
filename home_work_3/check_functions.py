@@ -1,4 +1,4 @@
-import logging, loggers
+import logging
 
 ip_and_port_checker_logger = logging.getLogger('ip&port_checker_logger')
 

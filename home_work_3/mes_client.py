@@ -12,12 +12,18 @@ b. сервер отвечает соответствующим кодом ре�
 ○ addr — ip-адрес сервера;
 ○ port — tcp-порт на сервере, по умолчанию 7777.
 '''
-import sys, socket, time, json, logging, loggers, check_functions
+import sys
+import socket
+import time
+import json
+import logging
+import check_functions
+from loggers import client_logger as client_logger_source
 from client_data import client_actions
 
 client_logger = logging.getLogger('client_logger')
 # for write check function logs in client log file, add file rotating logger to check function logger
-check_functions.ip_and_port_checker_logger.addHandler(loggers.file_rotating_logger)
+check_functions.ip_and_port_checker_logger.addHandler(client_logger_source.file_rotating_logger)
 
 
 class JimClient:
