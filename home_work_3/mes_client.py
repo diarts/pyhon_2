@@ -171,17 +171,18 @@ class JimClient:
 
 
 if __name__ == '__main__':
+    client_logger.info('start application')
     MAX_BYTES_TRANSFER = 2048
     ENCODING = 'utf-8'
     my_variables = {'-a': 'localhost', '-p': 7777, '-un': 'Vasiliy Pupckin'}
 
     system_args = sys.argv
-    client_logger.info(f'getting system arguments {system_args}')
+    client_logger.debug(f'getting system arguments {system_args}')
 
     checker = check_functions.IpAndPortChecker()
     variables = checker.check_sys_args(system_args, my_variables)
 
-    client_logger.debug(f'create JimClient variable whith parameters: ip address = {variables["-a"]}, '
+    client_logger.debug(f'create JimClient variable with parameters: ip address = {variables["-a"]}, '
                         f'port = {variables["-p"]}, user_name = {variables["-un"]}, '
                         f'max bytes transfer = {MAX_BYTES_TRANSFER}, encoding = {ENCODING}')
 
@@ -190,3 +191,4 @@ if __name__ == '__main__':
 
     client_logger.info('starting client')
     client.start_client()
+    client_logger.info('close application')
