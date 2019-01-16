@@ -12,12 +12,14 @@ b. сервер отвечает соответствующим кодом ре�
 ○ addr — ip-адрес сервера;
 ○ port — tcp-порт на сервере, по умолчанию 7777.
 '''
+import inspect
 import sys
 import socket
 import time
 import json
 import logging
 import check_functions
+from decorators.log_decorators import function_log
 from loggers import client_logger as client_logger_source
 from client_data import client_actions
 
@@ -45,21 +47,27 @@ class JimClient:
         """function gets unix time and converts it in h.m.s. d.m.y type """
         return time.ctime(u_time)
 
+    @function_log(client_logger, inspect.getframeinfo(inspect.currentframe())[2])
     def get_socket_port(self):
         return self._socket_port
 
+    @function_log(client_logger, inspect.getframeinfo(inspect.currentframe())[2])
     def get_max_transfered_b(self):
         return self._m_transfer_b
 
+    @function_log(client_logger, inspect.getframeinfo(inspect.currentframe())[2])
     def get_encoding(self):
         return self._encoding
 
+    @function_log(client_logger, inspect.getframeinfo(inspect.currentframe())[2])
     def get_host(self):
         return self._host
 
+    @function_log(client_logger, inspect.getframeinfo(inspect.currentframe())[2])
     def get_user_name(self):
         return self._user_name
 
+    @function_log(client_logger, inspect.getframeinfo(inspect.currentframe())[2])
     def tcp_connect_to(self):
         """function connect client to server by specified port. If server is offline, client closed"""
         client_logger.debug('create client socket')
@@ -74,11 +82,13 @@ class JimClient:
         client_logger.info(f'connecting is success')
         return my_client_socket
 
+    @function_log(client_logger, inspect.getframeinfo(inspect.currentframe())[2])
     def send_mess(self, my_socket, mess):
         """function sends specified message to the server"""
         client_logger.debug(f'sending message: {mess}')
         my_socket.send(mess.encode(self.get_encoding()))
 
+    @function_log(client_logger, inspect.getframeinfo(inspect.currentframe())[2])
     def get_server_mess(self, client_socket):
         """function get message from the server, decode it and convert to python dictionary.
         If it hasn't function responce or action, then client disconnect from the server"""
@@ -106,6 +116,7 @@ class JimClient:
             client_logger.debug('server message is right')
             return server_message
 
+    @function_log(client_logger, inspect.getframeinfo(inspect.currentframe())[2])
     def work_with_serv_mess(self, mess):
         """call responce or action function request in dependence"""
         client_logger.debug('start processing server message')
@@ -118,6 +129,7 @@ class JimClient:
             type_of_responce = self.work_with_responce(responce, mess)
             return type_of_responce
 
+    @function_log(client_logger, inspect.getframeinfo(inspect.currentframe())[2])
     def work_with_responce(self, responce, mess):
         client_logger.debug(f'responce code = {responce}')
         if 100 < responce > 200:
@@ -136,6 +148,7 @@ class JimClient:
                 f'server message type is "the request cannot be executed, server error": {mess.get("error")}')
             return responce
 
+    @function_log(client_logger, inspect.getframeinfo(inspect.currentframe())[2])
     def shutdown_from_serv(self, my_client_socket):
         """send quit message to the server and close client"""
         client_logger.debug('send shutdown message to server')
@@ -143,6 +156,7 @@ class JimClient:
         client_logger.info('shutdown client from server, close client')
         my_client_socket.close()
 
+    @function_log(client_logger, inspect.getframeinfo(inspect.currentframe())[2])
     def start_client(self):
         """contains work client entirely"""
         client_logger.debug('create tcp connect to server')
