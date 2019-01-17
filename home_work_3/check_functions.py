@@ -19,7 +19,7 @@ class IpAndPortChecker:
         self._my_value_error_port = ValueError(self.ejection_program(eject_type='port'))
         self._my_value_error_variable = ValueError(self.ejection_program(eject_type='variable'))
 
-    # has unittest
+    # has unittestit
     def _init_help_function(self, my_function):
         ip_and_port_checker_logger.debug('check whether transfer var is a function or a method')
         if not my_function:
