@@ -12,12 +12,14 @@ b. сервер отвечает соответствующим кодом ре�
 ○ -a <addr> — IP-адрес для прослушивания (по умолчанию слушает все
 доступные адреса).'''
 
+import inspect
 import sys
 import socket
 import time
 import json
 import logging
 import check_functions
+from decorators.log_decorators import function_log
 from loggers import server_logger as server_logger_source
 from server_data import server_responce
 
@@ -49,24 +51,31 @@ class JimServer:
         """function gets unix time and converts it in h.m.s. d.m.y type """
         return time.ctime(u_time)
 
+    @function_log(server_logger)
     def get_encoding(self):
         return self._encoding
 
+    @function_log(server_logger)
     def get_m_transfering_b(self):
         return self._m_transfer_b
 
+    @function_log(server_logger)
     def get_port(self):
         return self._socket_port
 
+    @function_log(server_logger)
     def get_host(self):
         return self._host
 
+    @function_log(server_logger)
     def get_client_count(self):
         return self._clients_count
 
+    @function_log(server_logger)
     def get_client_list(self):
         return self._clients_list
 
+    @function_log(server_logger)
     def open_tcp_socket(self):
         """function opened server socket and listen clients."""
         my_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -76,10 +85,12 @@ class JimServer:
         my_server_socket.listen(self.get_client_count())
         return my_server_socket
 
+    @function_log(server_logger)
     def get_client_mess(self, my_client):
         """function get message from the client"""
         return my_client.recv(self.get_m_transfering_b())
 
+    @function_log(server_logger)
     def disconnect_client(self, my_client, account_name, disconect_mess=''):
         """close link with client and deauthorize it"""
         server_logger.debug('send disconnect message to client')
@@ -93,9 +104,11 @@ class JimServer:
             server_logger.debug('disconnect client be find, run deauthorize it')
             self.client_deauthorize(item)
 
+    @function_log(server_logger)
     def authorize_client(self, client_address, account_name):
         self._clients_list.append((client_address, account_name))
 
+    @function_log(server_logger)
     def find_client(self, account_name):
         """find client in authorize clients list"""
         server_logger.debug(f'run find client: {account_name}')
@@ -107,14 +120,17 @@ class JimServer:
             server_logger.debug('client do not be find, deautorization not require')
             return False
 
+    @function_log(server_logger)
     def client_deauthorize(self, item):
         """remove client from clients list"""
         self._clients_list.remove(item)
 
+    @function_log(server_logger)
     def send_mess(self, my_client, mess):
         """send message to client"""
         my_client.send(mess.encode(self.get_encoding()))
 
+    @function_log(server_logger)
     def client_presence(self, my_client, client_address, client_user):
         """check client is authorize and if it don't, authorize it"""
         server_logger.debug('check dose exist client user and dose it has account_name')
@@ -138,6 +154,7 @@ class JimServer:
                 self.send_mess(my_client, server_responce.accept_presence())
                 return True
 
+    @function_log(server_logger)
     def check_client_mess(self, my_client, client_address, mess):
         """check is client message. If client message is empty, disconect client"""
         if not mess:
@@ -149,6 +166,7 @@ class JimServer:
             server_logger.info(f'connecting to {client_address} is successful')
             return True
 
+    @function_log(server_logger)
     def decode_mess(self, mess, my_client, client_address):
         """get client message and decoding it.
         If encoding of message don't equal of standard encoding server and client, client be disconnect"""
@@ -165,6 +183,7 @@ class JimServer:
             server_logger.debug('decode is successful')
             return decoding_mess
 
+    @function_log(server_logger)
     def convert_mess(self, mess, my_client, client_address):
         server_logger.debug('run convert json client message to dict')
         try:
@@ -178,6 +197,7 @@ class JimServer:
             server_logger.debug('convert is successful')
             return converted_mess
 
+    @function_log(server_logger)
     def work_whith_client_mess(self, mess, my_client, client_address):
         """gets client action and starts match function"""
         server_logger.debug('try get parameter action')
@@ -203,6 +223,7 @@ class JimServer:
                 self.disconnect_client(my_client, client_address)
                 return "quit"
 
+    @function_log(server_logger)
     def server_work(self):
         """contains work server entirely"""
         server_logger.debug('opening tcp socket')
