@@ -7,6 +7,13 @@ def accept_presence():
     }
     return json.dumps(mess)
 
+def accept_required(room):
+    mess = {
+        "responce": 225,
+        "alert": f"connecting to room {room} is successful"
+    }
+    return json.dumps(mess)
+
 def wrong_request():
     mess = {
         "responce": 400,
