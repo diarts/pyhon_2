@@ -1,0 +1,37 @@
+server_logger   INFO    2019-01-17 16:34:58,699 mes_server <module> line:268 | start application
+server_logger   DEBUG   2019-01-17 16:34:58,704 mes_server <module> line:274 | getting system arguments
+server_logger   DEBUG   2019-01-17 16:34:58,704 mes_server <module> line:276 | system arguments is: ['D:/git/pyhon_2/home_work_3/mes_server.py']
+ip&port_checker_logger DEBUG   2019-01-17 16:34:58,713 log_decorators wrapper line:7 | function _init_help_function call from function __init__
+ip&port_checker_logger DEBUG   2019-01-17 16:34:58,713 check_functions _init_help_function line:28 | check whether transfer var is a function or a method
+ip&port_checker_logger DEBUG   2019-01-17 16:34:58,713 check_functions _init_help_function line:30 | as any variables were not transfer, help function set default
+ip&port_checker_logger DEBUG   2019-01-17 16:34:58,713 log_decorators wrapper line:9 | function _init_help_function completed execution and return None
+ip&port_checker_logger DEBUG   2019-01-17 16:34:58,714 log_decorators wrapper line:7 | function ejection_program call from function __init__
+ip&port_checker_logger DEBUG   2019-01-17 16:34:58,714 log_decorators wrapper line:9 | function ejection_program completed execution and return Указан неверный IP адресс, IP адресс должен иметь вид X.X.X.X, где каждый X это число от 0 - 255
+ip&port_checker_logger DEBUG   2019-01-17 16:34:58,715 log_decorators wrapper line:7 | function ejection_program call from function __init__
+ip&port_checker_logger DEBUG   2019-01-17 16:34:58,715 log_decorators wrapper line:9 | function ejection_program completed execution and return Порт для подключения должен быть числом в диапазоно 1025 - 65535
+ip&port_checker_logger DEBUG   2019-01-17 16:34:58,716 log_decorators wrapper line:7 | function ejection_program call from function __init__
+ip&port_checker_logger DEBUG   2019-01-17 16:34:58,716 log_decorators wrapper line:9 | function ejection_program completed execution and return Вы неправильно указали переменные для запуска, если вам требуется помощь для запускапрограммы воспользуйтесь параметром -help
+ip&port_checker_logger DEBUG   2019-01-17 16:34:58,717 log_decorators wrapper line:7 | function check_sys_args call from function <module>
+ip&port_checker_logger DEBUG   2019-01-17 16:34:58,717 check_functions check_sys_args line:182 | check system arguments starting
+ip&port_checker_logger DEBUG   2019-01-17 16:34:58,717 check_functions check_sys_args line:190 | program is not running through the console, return of default startup parameters {'-a': '', '-p': 7777}
+ip&port_checker_logger DEBUG   2019-01-17 16:34:58,717 log_decorators wrapper line:9 | function check_sys_args completed execution and return {'-a': '', '-p': 7777}
+server_logger   DEBUG   2019-01-17 16:34:58,717 mes_server <module> line:281 | create JimServer variable with parameters: ip address = , port = 7777, max bytes transfer = 2048, max clients = 1, encoding = utf-8
+server_logger   INFO    2019-01-17 16:34:58,718 mes_server <module> line:285 | starting server...
+server_logger   DEBUG   2019-01-17 16:34:58,718 log_decorators wrapper line:7 | function server_work call from function <module>
+server_logger   DEBUG   2019-01-17 16:34:58,718 mes_server server_work line:229 | opening tcp socket
+server_logger   DEBUG   2019-01-17 16:34:58,719 log_decorators wrapper line:7 | function open_tcp_socket call from function server_work
+server_logger   DEBUG   2019-01-17 16:34:58,721 log_decorators wrapper line:7 | function get_host call from function open_tcp_socket
+server_logger   DEBUG   2019-01-17 16:34:58,721 log_decorators wrapper line:9 | function get_host completed execution and return 
+server_logger   DEBUG   2019-01-17 16:34:58,722 log_decorators wrapper line:7 | function get_port call from function open_tcp_socket
+server_logger   DEBUG   2019-01-17 16:34:58,722 log_decorators wrapper line:9 | function get_port completed execution and return 7777
+server_logger   DEBUG   2019-01-17 16:34:58,722 mes_server open_tcp_socket line:82 | server socket bind to host = , port = 7777
+server_logger   DEBUG   2019-01-17 16:34:58,724 log_decorators wrapper line:7 | function get_host call from function open_tcp_socket
+server_logger   DEBUG   2019-01-17 16:34:58,724 log_decorators wrapper line:9 | function get_host completed execution and return 
+server_logger   DEBUG   2019-01-17 16:34:58,725 log_decorators wrapper line:7 | function get_port call from function open_tcp_socket
+server_logger   DEBUG   2019-01-17 16:34:58,725 log_decorators wrapper line:9 | function get_port completed execution and return 7777
+server_logger   DEBUG   2019-01-17 16:34:58,725 mes_server open_tcp_socket line:84 | set client listening count = {self.get_client_count()}
+server_logger   DEBUG   2019-01-17 16:34:58,726 log_decorators wrapper line:7 | function get_client_count call from function open_tcp_socket
+server_logger   DEBUG   2019-01-17 16:34:58,726 log_decorators wrapper line:9 | function get_client_count completed execution and return 1
+server_logger   DEBUG   2019-01-17 16:34:58,727 log_decorators wrapper line:9 | function open_tcp_socket completed execution and return <socket.socket fd=556, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('0.0.0.0', 7777)>
+server_logger   DEBUG   2019-01-17 16:34:58,727 mes_server server_work line:231 | opening is success
+server_logger   DEBUG   2019-01-17 16:34:58,727 mes_server server_work line:233 | run an infinite loop to accept request for connection setting

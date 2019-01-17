@@ -23,7 +23,7 @@ class IpAndPortChecker:
         self._my_value_error_variable = ValueError(self.ejection_program(eject_type='variable'))
 
     # has unittest
-    @function_log(ip_and_port_checker_logger, inspect.getframeinfo(inspect.currentframe())[2])
+    @function_log(ip_and_port_checker_logger)
     def _init_help_function(self, my_function):
         ip_and_port_checker_logger.debug('check whether transfer var is a function or a method')
         if not my_function:
@@ -36,12 +36,12 @@ class IpAndPortChecker:
             ip_and_port_checker_logger.critical('transfer var is not a function, Exception Value error is raised')
             raise ValueError
 
-    @function_log(ip_and_port_checker_logger, inspect.getframeinfo(inspect.currentframe())[2])
+    @function_log(ip_and_port_checker_logger)
     def _default_help_function(self):
         print('help')
 
     # has unittest
-    @function_log(ip_and_port_checker_logger, inspect.getframeinfo(inspect.currentframe())[2])
+    @function_log(ip_and_port_checker_logger)
     def ejection_program(self, eject_type):
         if eject_type == 'ip':
             return self._WRONG_IP_MESS
@@ -53,7 +53,7 @@ class IpAndPortChecker:
             raise ValueError('wrong eject_type')
 
     # has unittest
-    @function_log(ip_and_port_checker_logger, inspect.getframeinfo(inspect.currentframe())[2])
+    @function_log(ip_and_port_checker_logger)
     def check_ip_counts(self, count: int):
         ip_and_port_checker_logger.debug(f'check item: {count} in range '
                                          f'from {self._MIN_VALUE_IP} to {self._MAX_VALUE_IP}')
@@ -66,7 +66,7 @@ class IpAndPortChecker:
             raise self._my_value_error_ip
 
     # has unittest
-    @function_log(ip_and_port_checker_logger, inspect.getframeinfo(inspect.currentframe())[2])
+    @function_log(ip_and_port_checker_logger)
     def ip_split(self, ip: str, splitter: str):
         try:
             return ip.split(splitter)
@@ -75,7 +75,7 @@ class IpAndPortChecker:
             raise self._my_value_error_ip
 
     # has unittest
-    @function_log(ip_and_port_checker_logger, inspect.getframeinfo(inspect.currentframe())[2])
+    @function_log(ip_and_port_checker_logger)
     def ip_list_items_convert_to_int(self, ip):
         for index, item in enumerate(ip):
             ip_and_port_checker_logger.debug(f'converting item: {item} to integer')
@@ -93,7 +93,7 @@ class IpAndPortChecker:
         return ip
 
     # has unittest
-    @function_log(ip_and_port_checker_logger, inspect.getframeinfo(inspect.currentframe())[2])
+    @function_log(ip_and_port_checker_logger)
     def check_ip(self, ip: str):
         ip_and_port_checker_logger.debug('run split string variable by .')
         ip = self.ip_split(ip=ip, splitter='.')
@@ -104,7 +104,7 @@ class IpAndPortChecker:
         return ip
 
     # has_unittest
-    @function_log(ip_and_port_checker_logger, inspect.getframeinfo(inspect.currentframe())[2])
+    @function_log(ip_and_port_checker_logger)
     def check_port(self, port):
         ip_and_port_checker_logger.debug(f'check port: {port} is integer')
         try:
@@ -126,7 +126,7 @@ class IpAndPortChecker:
             raise self._my_value_error_port
 
     # has unittest
-    @function_log(ip_and_port_checker_logger, inspect.getframeinfo(inspect.currentframe())[2])
+    @function_log(ip_and_port_checker_logger)
     def get_variable(self, my_system_args, index):
         try:
             new_var = my_system_args[index + 1]
@@ -138,7 +138,7 @@ class IpAndPortChecker:
             ip_and_port_checker_logger.debug(f'getting new argument {new_var} is successful')
             return new_var
 
-    @function_log(ip_and_port_checker_logger, inspect.getframeinfo(inspect.currentframe())[2])
+    @function_log(ip_and_port_checker_logger)
     def check_new_var(self, key, new_var):
         if key == '-a':
             ip_and_port_checker_logger.debug(f'run check {new_var} meets required ip address')
@@ -149,7 +149,7 @@ class IpAndPortChecker:
         return new_var
 
     # has unittest
-    @function_log(ip_and_port_checker_logger, inspect.getframeinfo(inspect.currentframe())[2])
+    @function_log(ip_and_port_checker_logger)
     def add_variables(self, my_system_args, my_variables):
         ip_and_port_checker_logger.debug('start add variables')
 
@@ -172,7 +172,7 @@ class IpAndPortChecker:
         ip_and_port_checker_logger.debug(f'add variables is finished, return new variables list: {my_variables}')
         return my_variables
 
-    @function_log(ip_and_port_checker_logger, inspect.getframeinfo(inspect.currentframe())[2])
+    @function_log(ip_and_port_checker_logger)
     def check_sys_args(self, my_system_args, my_variables):
         """check is input a right and set ip and host parameters
         -a:     is ip string

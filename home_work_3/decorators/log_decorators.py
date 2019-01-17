@@ -1,7 +1,10 @@
-def function_log(logger, main_func_name: str):
+import inspect
+
+
+def function_log(logger):
     def main_wrapper(func):
         def wrapper(*args, **kwargs):
-            logger.debug(f'function {func.__name__} call from function {main_func_name}')
+            logger.debug(f'function {func.__name__} call from function {inspect.stack()[1][3]}')
             result = func(*args, **kwargs)
             logger.debug(f'function {func.__name__} completed execution and return {result}')
             return result
@@ -12,9 +15,6 @@ def function_log(logger, main_func_name: str):
 
 
 if __name__ == '__main__':
-    import inspect
-
-
     def foo():
         print(inspect.getframeinfo(inspect.currentframe().f_back)[2])
 
