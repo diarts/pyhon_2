@@ -20,21 +20,25 @@ import json
 import logging
 import check_functions
 from decorators.log_decorators import function_log
-from loggers import client_logger as client_logger_source
+# from loggers import client_logger as client_logger_source
 from client_data import client_actions
 
 client_logger = logging.getLogger('client_logger')
 # for write check function logs in client log file, add file rotating logger to check function logger
-check_functions.ip_and_port_checker_logger.addHandler(client_logger_source.file_rotating_logger)
+# check_functions.ip_and_port_checker_logger.addHandler(client_logger_source.file_rotating_logger)
 
 
 class JimClient:
-    def __init__(self, socket_port, host, m_transfer_bytes=2048, user_name='admin', encoding='utf-8'):
+    chat_room = 'my_room'
+
+    def __init__(self, socket_port, host, m_transfer_bytes=2048, type_of_client='sending', user_name='admin',
+                 encoding='utf-8'):
         self._socket_port = socket_port
         self._m_transfer_b = m_transfer_bytes
         self._encoding = encoding
         self._host = host
         self._user_name = user_name
+        self._type_of_client = type_of_client
         self.json_decode_error = json.JSONDecodeError
 
     @staticmethod
@@ -71,16 +75,16 @@ class JimClient:
     def tcp_connect_to(self):
         """function connect client to server by specified port. If server is offline, client closed"""
         client_logger.debug('create client socket')
-        my_client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        my_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_logger.info(f'connecting to server...')
         client_logger.debug(f'try connect to server with host = {self.get_host()}, port = {self.get_socket_port()}')
         try:
-            my_client_socket.connect((self.get_host(), self.get_socket_port()))
+            my_server_socket.connect((self.get_host(), self.get_socket_port()))
         except ConnectionRefusedError:
             client_logger.warning(f'connecting is failed, server not answer')
             return False
         client_logger.info(f'connecting is success')
-        return my_client_socket
+        return my_server_socket
 
     @function_log(client_logger)
     def send_mess(self, my_socket, mess):
@@ -117,10 +121,13 @@ class JimClient:
             return server_message
 
     @function_log(client_logger)
-    def work_with_serv_mess(self, mess):
+    def work_with_serv_mess(self, client_socket, mess):
         """call responce or action function request in dependence"""
-        client_logger.debug('start processing server message')
-        client_logger.debug('getting responce or action')
+        if not mess:
+            client_logger.info('closing client')
+            self.shutdown_from_serv(client_socket)
+
+        client_logger.debug(f'server responce is: {mess}, getting responce or action')
         responce = mess.get("responce")
         action = mess.get("action")
 
@@ -128,6 +135,22 @@ class JimClient:
             client_logger.debug('server message is responce type start processing for responce message')
             type_of_responce = self.work_with_responce(responce, mess)
             return type_of_responce
+
+        elif action:
+            client_logger.debug('server message is action type, start processing for action message')
+            self.work_with_action(mess)
+
+    @function_log(client_logger)
+    def work_with_action(self, message):
+        client_logger.debug(f'message = {message}')
+        message_action = message.get('action')
+        message_from = message.get('from')
+        message_mesage = message.get('message')
+        if message_action == 'msg':
+            if message_from != self.get_user_name():
+                print(f'{message_mesage} : от {message_from}')
+            else:
+                print(f'Я {message_from} написал : {message_mesage}')
 
     @function_log(client_logger)
     def work_with_responce(self, responce, mess):
@@ -157,38 +180,66 @@ class JimClient:
         my_client_socket.close()
 
     @function_log(client_logger)
+    def sending_work(self, server_socket):
+        client_logger.debug('start infinite loop fo sending message to group clients')
+        while True:
+            client_logger.debug('get message from user')
+            message = input('Введите сообщение: ')
+            if message == 'quit':
+                client_logger.debug('work with server is finished')
+                self.shutdown_from_serv(server_socket)
+            else:
+                print(f'{self.get_user_name()} написал: {message}')
+                client_logger.debug(f'send {message} message to server')
+                self.send_mess(server_socket,
+                               client_actions.message(self.get_u_time(), self.chat_room, self.get_user_name(), message))
+
+    @function_log(client_logger)
+    def receiving_work(self, server_socket):
+        client_logger.debug('start infinite loop fo receiving group client message')
+        while True:
+            client_logger.debug('getting group message from server')
+            server_mess = self.get_server_mess(server_socket)
+            responce = self.work_with_serv_mess(server_socket, server_mess)
+
+    @function_log(client_logger)
     def start_client(self):
         """contains work client entirely"""
         client_logger.debug('create tcp connect to server')
-        client_socket = self.tcp_connect_to()
-        if not client_socket:
+        server_socket = self.tcp_connect_to()
+
+        if not server_socket:
             client_logger.info('closing client')
             return False
-        client_logger.debug('send presence message to server')
-        self.send_mess(client_socket, client_actions.presence_mess(self.get_user_name(), self.get_u_time()))
-        client_logger.debug('getting server responce to presence message')
-        server_mess = self.get_server_mess(client_socket)
-        if not server_mess:
-            client_logger.info('closing client')
-            self.shutdown_from_serv(client_socket)
 
-        client_logger.debug(f'server responce is: {server_mess}')
-        result = self.work_with_serv_mess(server_mess)
+        client_logger.debug(f'connecting to chat room: {self.chat_room}')
+        self.send_mess(server_socket, client_actions.join_mess(self.get_u_time(), self.chat_room))
+        client_logger.debug('getting server responce to connecting message')
+        server_mess = self.get_server_mess(server_socket)
+        responce = self.work_with_serv_mess(server_socket, server_mess)
+        client_logger.debug(f'work with server responce: {responce}')
 
-        if result == 202:
+        if responce == 225:
+            if self._type_of_client == 'sending':
+                self.sending_work(server_socket)
+
+            elif self._type_of_client == 'receiving':
+                self.receiving_work(server_socket)
+
+        elif responce == 202:
             client_logger.debug('client message responce code is 202, start conversation')
             for i in range(5):
                 client_logger.info('conversation')
 
         client_logger.debug('work with server is finished')
-        self.shutdown_from_serv(client_socket)
+        self.shutdown_from_serv(server_socket)
 
 
 if __name__ == '__main__':
     client_logger.info('start application')
     MAX_BYTES_TRANSFER = 2048
     ENCODING = 'utf-8'
-    my_variables = {'-a': 'localhost', '-p': 7777, '-un': 'Vasiliy Pupckin'}
+    my_variables = {'-a': 'localhost', '-p': 7777, '-un': 'Vasiliy Pupckin', '-type': 'sending'}
 
     system_args = sys.argv
     client_logger.debug(f'getting system arguments {system_args}')
@@ -198,10 +249,11 @@ if __name__ == '__main__':
 
     client_logger.debug(f'create JimClient variable with parameters: ip address = {variables["-a"]}, '
                         f'port = {variables["-p"]}, user_name = {variables["-un"]}, '
-                        f'max bytes transfer = {MAX_BYTES_TRANSFER}, encoding = {ENCODING}')
+                        f'max bytes transfer = {MAX_BYTES_TRANSFER}, encoding = {ENCODING}, '
+                        f'client type = {variables["-type"]}')
 
     client = JimClient(variables['-p'], variables['-a'], m_transfer_bytes=MAX_BYTES_TRANSFER,
-                       user_name=variables['-un'], encoding=ENCODING)
+                       user_name=variables['-un'], type_of_client=variables['-type'], encoding=ENCODING)
 
     client_logger.info('starting client')
     client.start_client()

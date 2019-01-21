@@ -75,10 +75,6 @@ class JimServer:
         return self._clients_count
 
     @function_log(server_logger)
-    def get_client_list(self):
-        return self._chats_list
-
-    @function_log(server_logger)
     def open_tcp_socket(self):
         """function opened server socket and listen clients."""
         my_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -96,42 +92,19 @@ class JimServer:
         return my_client.recv(self.get_m_transfering_b())
 
     @function_log(server_logger)
-    def disconnect_client(self, my_client, account_name, disconect_mess=''):
+    def disconnect_client(self, my_client, disconnect_mess=''):
         """close link with client and deauthorize it"""
         server_logger.debug('send disconnect message to client')
-        self.send_mess(my_client, disconect_mess)
-        server_logger.debug('close client')
+        self.send_mess(my_client, disconnect_mess)
+        server_logger.debug('remove client from server client list and close')
+        self._server_clients.remove(my_client)
         my_client.close()
-        server_logger.info('client is disconected\n' + '_' * 100)
+        server_logger.info('client is disconnected\n' + '_' * 100)
 
     @function_log(server_logger)
     def send_mess(self, my_client, mess):
         """send message to client"""
         my_client.send(mess.encode(self.get_encoding()))
-
-    @function_log(server_logger)
-    def client_presence(self, my_client, client_address, client_user):
-        """check client is authorize and if it don't, authorize it"""
-        server_logger.debug('check dose exist client user and dose it has account_name')
-        if not client_user or not client_user.get("account_name"):
-            server_logger.warning('client has not client user or has not account name')
-            server_logger.debug('run disconnect client')
-            self.disconnect_client(my_client, client_user.get("account_name"), server_responce.wrong_request())
-            return False
-        else:
-            server_logger.debug('client has account_name')
-            account_name = client_user.get("account_name")
-            server_logger.debug('check is account already autorize or not')
-            if self.find_client(account_name):
-                server_logger.debug('account already autorize, run disconnecting')
-                self.disconnect_client(my_client, account_name, server_responce.client_alredy_connected())
-                return False
-            else:
-                server_logger.debug('account not be autorize, run autorisation')
-                self.authorize_client(client_address, account_name)
-                server_logger.debug('autorization is success, send accept presence message to client')
-                self.send_mess(my_client, server_responce.accept_presence())
-                return True
 
     @function_log(server_logger)
     def check_client_mess(self, my_client, client_address, mess):
@@ -180,7 +153,6 @@ class JimServer:
     def work_with_chat(self, client, mess):
         room = mess.get('room')
         server_logger.debug(f'check is chat {room} exist')
-        server_logger.error(f'check room and client')
 
         if not room:
             server_logger.error('in message with action join has not room name')
@@ -189,8 +161,10 @@ class JimServer:
         else:
             server_logger.debug('check is room in chart list')
             if room not in self._chats_list:
-                server_logger.debug(f'room with name {room} dose not exist, now that room been created')
+                server_logger.debug(f'room with name {room} dose not exist in chats list, now that room been created')
                 self._chats_list[room] = [client, ]
+                server_logger.debug(f'now chats list is {self._chats_list}')
+                server_logger.debug(f'sending accept required message to client {client}')
                 self.send_mess(client, server_responce.accept_required(room))
                 return True
             else:
@@ -203,7 +177,41 @@ class JimServer:
                 else:
                     server_logger.error('client was in chat room')
                     self.send_mess(client, server_responce.client_alredy_connected())
-                    return False
+                    return True
+
+    @function_log(server_logger)
+    def send_message_to_group(self,client, message, group_name):
+        server_logger.debug(f'find chat with name: {group_name}')
+        if group_name in self._chats_list:
+            server_logger.debug(f'group name: {group_name} in chat list, start message sending loop')
+            for chat_client in self._chats_list[group_name]:
+                server_logger.debug(f'sending message for client of chat: {chat_client}')
+                self.send_mess(chat_client, json.dumps(message))
+            return True
+        else:
+            server_logger.debug(f'chat with name {group_name} not registered, send to client wrong request response')
+            self.send_mess(client, server_responce.wrong_request(f' chat with name {group_name} not exist'))
+            return False
+
+    @function_log(server_logger)
+    def client_send_message(self, message, client):
+        server_logger.debug('get addressees of message')
+        to_user = message.get('to')
+        server_logger.debug('check addressees is exist')
+        if not to_user:
+            server_logger.debug('addressees is not exist, send to client wrong request response')
+            self.send_mess(client, server_responce.wrong_request(' addressees in not exist'))
+            return False
+
+        server_logger.debug('addressees is group chat or user')
+        if to_user[0] == '#':
+            server_logger.debug('addressees is group chat')
+            result = self.send_message_to_group(client, message, to_user[1:])
+            return result
+        else:
+            server_logger.debug('addressees is user')
+            return True
+
 
     @function_log(server_logger)
     def work_whith_client_mess(self, mess, my_client, client_address):
@@ -216,27 +224,38 @@ class JimServer:
             server_logger.debug('run disconnect client')
             self.disconnect_client(my_client, None, server_responce.wrong_request())
             return False
+
         else:
             server_logger.debug('client message has parameter action, comparison it with "presence" and "quit"')
             if action == "presence":
                 server_logger.debug('value of action parameter is "presence", run processing of presence message')
-                answer = self.client_presence(my_client, client_address, mess.get("user"))
-                if not answer:
-                    return False
-                else:
-                    return "presence"
+
             elif action == "quit":
                 server_logger.info('client request disconnect from server')
                 server_logger.debug('value of action parameter is "quit", run disconnecting')
                 self.disconnect_client(my_client, client_address)
                 return "quit"
+
             elif action == "join":
                 server_logger.info('client request join to chat room')
-                self.work_with_chat()
+                result = self.work_with_chat(my_client, mess)
+                if result:
+                    return "join"
+                else:
+                    return None
+
+            elif action == "msg":
+                server_logger.info('client send message')
+                result = self.client_send_message(mess, my_client)
+                if not result:
+                    return None
+                else:
+                    return "msg"
 
     @function_log(server_logger)
     def read_messages(self, read, address):
-        responses = {}
+        requests = {}
+        server_logger.debug('create requests dict')
         for client in read:
             server_logger.debug('getting client message')
             client_mess = self.get_client_mess(client)
@@ -247,28 +266,29 @@ class JimServer:
                 continue
             else:
                 client_mess = self.decode_mess(client_mess, client, address)
-
+                server_logger.debug('check is client message')
                 if not client_mess:
-                    server_logger.debug('run next loop stage to getting client message')
+                    server_logger.debug('client message is empty, run next loop stage to getting client message')
                     continue
+                server_logger.debug('converting client message')
                 client_mess = self.convert_mess(client_mess, client, address)
+                server_logger.debug(f'converted is successful, message = {client_mess}')
 
                 if not client_mess:
-                    server_logger.debug('run next loop stage to getting client message')
+                    server_logger.debug('client message is empty, run next loop stage to getting client message')
                     continue
 
                 server_logger.debug('add client mess to responses list')
-                responses[client] = client_mess
+                requests[client] = client_mess
                 server_logger.debug('close client')
-                client.close()
                 server_logger.debug('remove client from server client list')
-                self._server_clients.remove(client)
-        return responses
+        return requests
 
     @function_log(server_logger)
-    def write_message(self, write, requests, address):
+    def write_message(self, write, responces, address):
         for client in write:
-            for mess in requests:
+            if client in responces:
+                mess = responces[client]
                 server_logger.debug('run getting client action')
                 result = self.work_whith_client_mess(mess, client, address)
 
@@ -282,23 +302,31 @@ class JimServer:
         server_logger.debug('run an infinite loop to accept request for connection setting')
         while True:
             try:
+                server_logger.info('server_socket accepting')
                 client, address = server_socket.accept()
+                server_logger.info('accepting successful')
             except OSError:
                 pass
             else:
-                server_logger.info(f'connecting to {address}...')
+                server_logger.info(f'connecting to {client}, {address}...')
                 self._server_clients.append(client)
-                server_logger.debug('run an infinite loop to getting client message and work with it')
+                server_logger.debug('connecting is successful')
             finally:
                 write = []
                 read = []
+                server_logger.debug(f'create write: {write} and read: {read} lists')
 
                 try:
+                    server_logger.debug('getting active read, write, e client lists')
                     read, write, e = select.select(self._server_clients, self._server_clients, [], 0)
                 except Exception:
+                    server_logger.warning('client disconnected')
                     pass
-
-                    requests = self.read_messages(read, address)
+                else:
+                    server_logger.debug(
+                        f'getting active client lists is successful read: {read}, write: {write}, error: {e}')
+                    request = self.read_messages(read, address)
+                    self.write_message(write, request, address)
 
 
 if __name__ == '__main__':

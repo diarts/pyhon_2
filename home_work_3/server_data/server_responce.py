@@ -14,10 +14,10 @@ def accept_required(room):
     }
     return json.dumps(mess)
 
-def wrong_request():
+def wrong_request(custom = ''):
     mess = {
         "responce": 400,
-        "error": "You request not compliant"
+        "error": "You request not compliant" + custom
     }
     return json.dumps(mess)
 

@@ -19,8 +19,23 @@ def join_mess(time, room_name):
         "action": "join",
         "time": time,
         "room": room_name,
-     }
+    }
     return json.dumps(mess)
+
+
+def message(time, to_name: str, from_name: str, message: str, is_room=True):
+    if is_room:
+        to_name = '#'+to_name
+
+    mess = {
+        "action": "msg",
+        "time": time,
+        "to": to_name,
+        "from": from_name,
+        "message": message,
+    }
+    return json.dumps(mess)
+
 
 def quit_mess():
     mess = {

@@ -1,0 +1,64 @@
+client_logger   DEBUG   2019-01-21 18:52:42,529 mes_client get_server_mess line:100 | server message received, start decode, encoding = utf-8
+client_logger   DEBUG   2019-01-21 18:52:42,554 log_decorators wrapper line:7 | function get_encoding call from function get_server_mess
+client_logger   DEBUG   2019-01-21 18:52:42,555 log_decorators wrapper line:9 | function get_encoding completed execution and return utf-8
+client_logger   DEBUG   2019-01-21 18:52:42,556 mes_client get_server_mess line:107 | converting json message to dict
+client_logger   DEBUG   2019-01-21 18:52:42,556 mes_client get_server_mess line:114 | find "responce" or "action" in server message
+client_logger   DEBUG   2019-01-21 18:52:42,556 mes_client get_server_mess line:120 | server message is right
+client_logger   DEBUG   2019-01-21 18:52:42,557 log_decorators wrapper line:9 | function get_server_mess completed execution and return {'responce': 225, 'alert': 'connecting to room my_room is successful'}
+client_logger   DEBUG   2019-01-21 18:52:42,558 log_decorators wrapper line:7 | function work_with_serv_mess call from function start_client
+client_logger   DEBUG   2019-01-21 18:52:42,559 mes_client work_with_serv_mess line:130 | server responce is: {'responce': 225, 'alert': 'connecting to room my_room is successful'}, getting responce or action
+client_logger   DEBUG   2019-01-21 18:52:42,559 mes_client work_with_serv_mess line:135 | server message is responce type start processing for responce message
+client_logger   DEBUG   2019-01-21 18:52:42,561 log_decorators wrapper line:7 | function work_with_responce call from function work_with_serv_mess
+client_logger   DEBUG   2019-01-21 18:52:42,561 mes_client work_with_responce line:157 | responce code = 225
+client_logger   DEBUG   2019-01-21 18:52:42,561 mes_client work_with_responce line:159 | server responce type is "information"
+client_logger   INFO    2019-01-21 18:52:42,562 mes_client work_with_responce line:160 | server message is: connecting to room my_room is successful
+client_logger   DEBUG   2019-01-21 18:52:42,562 log_decorators wrapper line:9 | function work_with_responce completed execution and return 225
+client_logger   DEBUG   2019-01-21 18:52:42,563 log_decorators wrapper line:9 | function work_with_serv_mess completed execution and return 225
+client_logger   DEBUG   2019-01-21 18:52:42,563 mes_client start_client line:220 | work with server responce: 225
+client_logger   DEBUG   2019-01-21 18:52:42,564 log_decorators wrapper line:7 | function sending_work call from function start_client
+client_logger   DEBUG   2019-01-21 18:52:42,566 mes_client sending_work line:184 | start infinite loop fo sending message to group clients
+client_logger   DEBUG   2019-01-21 18:52:42,566 mes_client sending_work line:186 | get message from user
+client_logger   DEBUG   2019-01-21 18:52:48,785 log_decorators wrapper line:7 | function get_user_name call from function sending_work
+client_logger   DEBUG   2019-01-21 18:52:48,786 log_decorators wrapper line:9 | function get_user_name completed execution and return Vasiliy Pupckin
+client_logger   DEBUG   2019-01-21 18:52:48,786 mes_client sending_work line:193 | send ghffhfgh message to server
+client_logger   DEBUG   2019-01-21 18:52:48,788 log_decorators wrapper line:7 | function get_user_name call from function sending_work
+client_logger   DEBUG   2019-01-21 18:52:48,788 log_decorators wrapper line:9 | function get_user_name completed execution and return Vasiliy Pupckin
+client_logger   DEBUG   2019-01-21 18:52:48,789 log_decorators wrapper line:7 | function send_mess call from function sending_work
+client_logger   DEBUG   2019-01-21 18:52:48,790 mes_client send_mess line:92 | sending message: {"action": "msg", "time": 1548085969, "to": "#my_room", "from": "Vasiliy Pupckin", "message": "ghffhfgh"}
+client_logger   DEBUG   2019-01-21 18:52:48,792 log_decorators wrapper line:7 | function get_encoding call from function send_mess
+client_logger   DEBUG   2019-01-21 18:52:48,792 log_decorators wrapper line:9 | function get_encoding completed execution and return utf-8
+client_logger   DEBUG   2019-01-21 18:52:48,794 log_decorators wrapper line:9 | function send_mess completed execution and return None
+client_logger   DEBUG   2019-01-21 18:52:48,794 mes_client sending_work line:186 | get message from user
+client_logger   DEBUG   2019-01-21 18:52:58,553 log_decorators wrapper line:7 | function get_user_name call from function sending_work
+client_logger   DEBUG   2019-01-21 18:52:58,554 log_decorators wrapper line:9 | function get_user_name completed execution and return Vasiliy Pupckin
+client_logger   DEBUG   2019-01-21 18:52:58,554 mes_client sending_work line:193 | send dfgfdgdfgdfgdfg message to server
+client_logger   DEBUG   2019-01-21 18:52:58,556 log_decorators wrapper line:7 | function get_user_name call from function sending_work
+client_logger   DEBUG   2019-01-21 18:52:58,556 log_decorators wrapper line:9 | function get_user_name completed execution and return Vasiliy Pupckin
+client_logger   DEBUG   2019-01-21 18:52:58,558 log_decorators wrapper line:7 | function send_mess call from function sending_work
+client_logger   DEBUG   2019-01-21 18:52:58,558 mes_client send_mess line:92 | sending message: {"action": "msg", "time": 1548085979, "to": "#my_room", "from": "Vasiliy Pupckin", "message": "dfgfdgdfgdfgdfg"}
+client_logger   DEBUG   2019-01-21 18:52:58,560 log_decorators wrapper line:7 | function get_encoding call from function send_mess
+client_logger   DEBUG   2019-01-21 18:52:58,561 log_decorators wrapper line:9 | function get_encoding completed execution and return utf-8
+client_logger   DEBUG   2019-01-21 18:52:58,561 log_decorators wrapper line:9 | function send_mess completed execution and return None
+client_logger   DEBUG   2019-01-21 18:52:58,561 mes_client sending_work line:186 | get message from user
+client_logger   DEBUG   2019-01-21 18:53:14,306 log_decorators wrapper line:7 | function get_user_name call from function sending_work
+client_logger   DEBUG   2019-01-21 18:53:14,306 log_decorators wrapper line:9 | function get_user_name completed execution and return Vasiliy Pupckin
+client_logger   DEBUG   2019-01-21 18:53:14,307 mes_client sending_work line:193 | send fjfgjhfgjfghj message to server
+client_logger   DEBUG   2019-01-21 18:53:14,308 log_decorators wrapper line:7 | function get_user_name call from function sending_work
+client_logger   DEBUG   2019-01-21 18:53:14,309 log_decorators wrapper line:9 | function get_user_name completed execution and return Vasiliy Pupckin
+client_logger   DEBUG   2019-01-21 18:53:14,310 log_decorators wrapper line:7 | function send_mess call from function sending_work
+client_logger   DEBUG   2019-01-21 18:53:14,311 mes_client send_mess line:92 | sending message: {"action": "msg", "time": 1548085994, "to": "#my_room", "from": "Vasiliy Pupckin", "message": "fjfgjhfgjfghj"}
+client_logger   DEBUG   2019-01-21 18:53:14,313 log_decorators wrapper line:7 | function get_encoding call from function send_mess
+client_logger   DEBUG   2019-01-21 18:53:14,313 log_decorators wrapper line:9 | function get_encoding completed execution and return utf-8
+client_logger   DEBUG   2019-01-21 18:53:14,314 log_decorators wrapper line:9 | function send_mess completed execution and return None
+client_logger   DEBUG   2019-01-21 18:53:14,314 mes_client sending_work line:186 | get message from user
+client_logger   DEBUG   2019-01-21 18:53:22,426 log_decorators wrapper line:7 | function get_user_name call from function sending_work
+client_logger   DEBUG   2019-01-21 18:53:22,426 log_decorators wrapper line:9 | function get_user_name completed execution and return Vasiliy Pupckin
+client_logger   DEBUG   2019-01-21 18:53:22,426 mes_client sending_work line:193 | send i love programming message to server
+client_logger   DEBUG   2019-01-21 18:53:22,428 log_decorators wrapper line:7 | function get_user_name call from function sending_work
+client_logger   DEBUG   2019-01-21 18:53:22,428 log_decorators wrapper line:9 | function get_user_name completed execution and return Vasiliy Pupckin
+client_logger   DEBUG   2019-01-21 18:53:22,430 log_decorators wrapper line:7 | function send_mess call from function sending_work
+client_logger   DEBUG   2019-01-21 18:53:22,430 mes_client send_mess line:92 | sending message: {"action": "msg", "time": 1548086002, "to": "#my_room", "from": "Vasiliy Pupckin", "message": "i love programming"}
+client_logger   DEBUG   2019-01-21 18:53:22,432 log_decorators wrapper line:7 | function get_encoding call from function send_mess
+client_logger   DEBUG   2019-01-21 18:53:22,432 log_decorators wrapper line:9 | function get_encoding completed execution and return utf-8
+client_logger   DEBUG   2019-01-21 18:53:22,433 log_decorators wrapper line:9 | function send_mess completed execution and return None
+client_logger   DEBUG   2019-01-21 18:53:22,433 mes_client sending_work line:186 | get message from user

@@ -22,12 +22,8 @@ class IpAndPortChecker:
         self._my_value_error_port = ValueError(self.ejection_program(eject_type='port'))
         self._my_value_error_variable = ValueError(self.ejection_program(eject_type='variable'))
 
-<<<<<<< HEAD
-    # has unittestit
-=======
     # has unittest
     @function_log(ip_and_port_checker_logger)
->>>>>>> home_work_6
     def _init_help_function(self, my_function):
         ip_and_port_checker_logger.debug('check whether transfer var is a function or a method')
         if not my_function:
@@ -181,7 +177,8 @@ class IpAndPortChecker:
         """check is input a right and set ip and host parameters
         -a:     is ip string
         -p:     is port number
-        -un:    is user name (for client)"""
+        -un:    is user name (for client)
+        -type   is user type of client (for client)"""
 
         ip_and_port_checker_logger.debug('check system arguments starting')
         if len(my_system_args) == 2 and my_system_args[1] == 'help':
@@ -210,7 +207,11 @@ if __name__ == '__main__':
     sys_args = sys.argv
     ip_and_port_checker_logger.debug('create ip and port checker')
     checker = IpAndPortChecker()
-    my_variables = checker.check_sys_args(sys_args, {'-a': 'localhost', '-p': 7777, '-un': 'Vasiliy Pupckina'})
+    my_variables = checker.check_sys_args(sys_args, {'-a': 'localhost',
+                                                     '-p': 7777,
+                                                     '-un': 'Vasiliy Pupckina',
+                                                     '-type': 'sending',
+                                                     })
 
     if not my_variables:
         ip_and_port_checker_logger.debug('startup parameters dict is empty, exit from program')
